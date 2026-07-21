@@ -39,6 +39,11 @@
     }
     button:hover { background: #4338ca; }
     button:active { transform: scale(0.97); }
+    button.reset {
+      margin-left: 12px;
+      background: #6b7280;
+    }
+    button.reset:hover { background: #4b5563; }
     #result {
       margin-top: 24px;
       font-size: 18px;
@@ -46,16 +51,35 @@
       color: #10b981;
       min-height: 24px;
     }
+    #count {
+      margin-top: 12px;
+      font-size: 16px;
+      color: #6b7280;
+      min-height: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>我的第一个 CodeM 沙箱实验</h1>
     <button id="btn">点我</button>
+    <button id="resetBtn" class="reset">重置</button>
     <div id="result"></div>
+    <div id="count">已点击 0 次</div>
   </div>
   <script>
+    let clickCount = 0;
+    function handleClick() {
+      clickCount++;
+      document.getElementById('result').textContent = '🎉 点击成功！CodeM 沙箱运行正常';
+      document.getElementById('count').textContent = '已点击 ' + clickCount + ' 次';
+    }
+    function handleReset() {
+      clickCount = 0;
+      document.getElementById('count').textContent = '已点击 0 次';
+    }
     document.getElementById('btn').addEventListener('click', handleClick);
+    document.getElementById('resetBtn').addEventListener('click', handleReset);
   </script>
 </body>
 </html>
