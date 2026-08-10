@@ -57,6 +57,28 @@
       color: #6b7280;
       min-height: 20px;
     }
+  .stats {
+      margin-top: 20px;
+      padding: 16px 20px;
+      background: #f9fafb;
+      border-radius: 10px;
+      text-align: left;
+    }
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #4b5563;
+      padding: 4px 0;
+    }
+    .stats-row .label { color: #9ca3af; }
+    .stats-row .value { font-weight: 600; color: #374151; }
+    #resetMsg {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #6b7280;
+      min-height: 18px;
+    }
   </style>
 </head>
 <body>
@@ -66,21 +88,93 @@
     <button id="resetBtn" class="reset">重置</button>
     <div id="result"></div>
     <div id="count">已点击 0 次</div>
+  <div class="stats">
+      <div class="stats-row">
+        <span class="label">总点击次数</span>
+        <span class="value" id="totalCount">0</span>
+      </div>
+      <div class="stats-row">
+        <span class="label">最近点击时间</span>
+        <span class="value" id="lastClickTime">—</span>
+      </div>
+      <div class="stats-row">
+        <span class="label">最高连续点击</span>
+        <span class="value" id="maxStreak">0</span>
+      </div>
+      <div class="stats-row">
+        <span class="label">距上次点击</span>
+        <span class="value" id="interval">—</span>
+      </div>
+    </div>
+    <div id="resetMsg"></div>
   </div>
   <script>
     let clickCount = 0;
+    let lastClickTs = 0;       // 上一次点击的时间戳（ms）
+      let maxStreak = 0;         // 最高连续点击次数
+    let currentStreak = 0;     // 当前连续点击次数
+    const STREAK_GAP = 2000;   // 2 秒内算连续点击
+      
+      function formatTime(ts) {
+      if (!ts) return '—';
+    var d = new Date(ts);
+    return d.toLocaleTimeString('zh-CN', { hour12: false });
+      }
+
     function updateCount() {
-      document.getElementById('count').textContent = '已点击 ' + clickCount + ' 次';
+    document.getElementById('count').textContent = '已点击 ' + clickCount + ' 次';
+    document.getElementById('totalCount').textContent = clickCount;
+    document.getElementById('lastClickTime').textContent = formatTime(lastClickTs);
+  document.getElementById('maxStreak').textContent = maxStreak;
+      if (lastClickTs > 0) {
+        var gap = Date.now() - lastClickTs;
+        document.getElementById('interval').textContent = gap < 1000 ? gap + ' ms' : (gap / 1000).toFixed(1) + ' s';
+      }
     }
+
+    // 实时刷新「距上次点击」间隔
+    setInterval(function () {
+      if (lastClickTs > 0) {
+        var gap = Date.now() - lastClickTs;
+        document.getElementById('interval').textContent = gap < 1000 ? gap + ' ms' : (gap / 1000).toFixed(1) + ' s';
+      }
+    }, 200);
+
     function handleClick() {
       clickCount++;
+      var now = Date.now();
+
+      // 判断是否为连续点击
+      if (lastClickTs > 0 && now - lastClickTs <= STREAK_GAP) {
+        currentStreak++;
+      } else {
+        currentStreak = 1;
+      }
+      if (currentStreak > maxStreak) {
+        maxStreak = currentStreak;
+      }
+      lastClickTs = now;
+
       document.getElementById('result').textContent = '🎉 沙箱运行成功';
+      document.getElementById('resetMsg').textContent = '';
       updateCount();
     }
+
     function handleReset() {
+      if (clickCount === 0) {
+        document.getElementById('resetMsg').textContent = '当前无统计数据可重置';
+        return;
+      }
+      var prev = clickCount;
       clickCount = 0;
+      lastClickTs = 0;
+      maxStreak = 0;
+      currentStreak = 0;
+      document.getElementById('result').textContent = '';
+      document.getElementById('resetMsg').textContent = '已重置 ' + prev + ' 次点击记录';
       updateCount();
     }
+
     document.getElementById('btn').addEventListener('click', handleClick);
     document.getElementById('resetBtn').addEventListener('click', handleReset);
     updateCount();
