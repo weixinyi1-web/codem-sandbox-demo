@@ -57,7 +57,7 @@
       color: #6b7280;
       min-height: 20px;
     }
-  .stats {
+    .stats {
       margin-top: 20px;
       padding: 16px 20px;
       background: #f9fafb;
@@ -88,7 +88,7 @@
     <button id="resetBtn" class="reset">重置</button>
     <div id="result"></div>
     <div id="count">已点击 0 次</div>
-  <div class="stats">
+    <div class="stats">
       <div class="stats-row">
         <span class="label">总点击次数</span>
         <span class="value" id="totalCount">0</span>
@@ -111,34 +111,35 @@
   <script>
     let clickCount = 0;
     let lastClickTs = 0;       // 上一次点击的时间戳（ms）
-      let maxStreak = 0;         // 最高连续点击次数
+    let maxStreak = 0;         // 最高连续点击次数
     let currentStreak = 0;     // 当前连续点击次数
     const STREAK_GAP = 2000;   // 2 秒内算连续点击
-      
-      function formatTime(ts) {
-      if (!ts) return '—';
-    var d = new Date(ts);
-    return d.toLocaleTimeString('zh-CN', { hour12: false });
-      }
 
-    function updateCount() {
-    document.getElementById('count').textContent = '已点击 ' + clickCount + ' 次';
-    document.getElementById('totalCount').textContent = clickCount;
-    document.getElementById('lastClickTime').textContent = formatTime(lastClickTs);
-  document.getElementById('maxStreak').textContent = maxStreak;
+    function formatTime(ts) {
+      if (!ts) return '—';
+      var d = new Date(ts);
+      return d.toLocaleTimeString('zh-CN', { hour12: false });
+    }
+
+    function updateInterval() {
       if (lastClickTs > 0) {
         var gap = Date.now() - lastClickTs;
         document.getElementById('interval').textContent = gap < 1000 ? gap + ' ms' : (gap / 1000).toFixed(1) + ' s';
+      } else {
+        document.getElementById('interval').textContent = '—';
       }
     }
 
+    function updateCount() {
+      document.getElementById('count').textContent = '已点击 ' + clickCount + ' 次';
+      document.getElementById('totalCount').textContent = clickCount;
+      document.getElementById('lastClickTime').textContent = formatTime(lastClickTs);
+      document.getElementById('maxStreak').textContent = maxStreak;
+      updateInterval();
+    }
+
     // 实时刷新「距上次点击」间隔
-    setInterval(function () {
-      if (lastClickTs > 0) {
-        var gap = Date.now() - lastClickTs;
-        document.getElementById('interval').textContent = gap < 1000 ? gap + ' ms' : (gap / 1000).toFixed(1) + ' s';
-      }
-    }, 200);
+    setInterval(updateInterval, 200);
 
     function handleClick() {
       clickCount++;
